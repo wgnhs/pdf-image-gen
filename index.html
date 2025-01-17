@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PDF Image Generator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/css/variables.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/css/reset.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/css/typography.css" />
+<style>
+    [data-view=app] {
+      display: grid;
+      grid-template: "left"
+                      "right"
+                      / 1fr;
+    }
+    .left-panel {
+      grid-area: left;
+      display: flex;
+      justify-content: space-around;
+      flex-direction: column;
+      align-items: center;
+    }
+    .right-panel {
+      grid-area: right;
+      display: flex;
+      justify-content: center;
+    }
+
+    [data-view] {
+      height: 100%;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .positioned {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    a {
+      text-decoration: none;
+      margin: var(--border-radius) 0;
+    }
+    .link:hover {
+      color: var(--palette-900);
+    }
+    .link:focus {
+      outline: thin dotted;
+    }
+    .link {
+      display: block;
+
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-extra-large);
+      text-align: center;
+
+      cursor: pointer;
+      text-align: center;
+      background: var(--palette-light);
+      color: var(--palette-accent);
+      border-radius: var(--border-radius);
+      padding: var(--border-radius);
+    }
+    .wrap-content {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1em;
+    }
+
+    [data-closed] {
+      display: none;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.2.228/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/common.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/layout.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@wgnhs/elements@^0/dist/pdf.js"></script>
+</head>
+
+<body>
+<div id="dropbox" data-view="app">
+  <div class="left-panel">
+    <div>
+      <h2>
+        Select file:
+      </h2>
+      <div>
+          <input id="uploadInput" type="file" name="myFiles" onchange="handleFiles(this.files);">
+      </div>
+    </div>
+    <h2>
+      Or Drag and Drop file...
+    </h2>
+  </div>
+  <div class="right-panel positioned">
+    <app-spinner id="spinner" data-closed></app-spinner>
+    <div id="output" data-closed>
+      ...Success!
+      <a 
+        id="link"
+        class="link"
+        href="href"
+        download="name">
+        <div class="wrap-content">
+          Download
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+  function renderPDF(url) {
+    if (url) {
+      let canvasEl = document.createElement('canvas');
+      let loadingTask = pdfjsLib.getDocument(url);
+      return loadingTask.promise.then(function(pdf) {
+        // console.log('PDF Loaded');
+        var pageNumber = 1;
+        return pdf.getPage(pageNumber);
+      }).then(function(page) {
+        // console.log('Page loaded');
+        
+        var scale = 1.0;
+        var viewport = page.getViewport({scale: scale});
+
+        // Prepare canvas using PDF page dimensions
+        var canvas = canvasEl;
+        var context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        var renderTask = page.render(renderContext);
+        return renderTask.promise;
+      }).then(function () {
+        // console.log('Page rendered');
+        let durl = canvasEl.toDataURL();
+        return durl;
+      });
+    }
+    return Promise.reject(null);
+  }
+
+  function handleFiles(files) {
+    const file = (files.length > 0) ? files[0] : undefined;
+    const panel = document.getElementById('output');
+    const spinner = document.getElementById('spinner');
+
+    panel.setAttribute('data-closed', true);
+    spinner.removeAttribute('data-closed');
+    if (file && file.type === "application/pdf") {
+      const name = file.name.split('.')[0];
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        console.log(e.target.result)
+        renderPDF(e.target.result)
+        .then((durl) => {
+          const link = document.getElementById('link');
+          link.setAttribute('href', durl)
+          link.setAttribute('download', name + '.png');
+          spinner.setAttribute('data-closed', true);
+          panel.removeAttribute('data-closed');
+        })
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function dragenter(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function dragover(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function drop(e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const dt = e.dataTransfer;
+    const files = dt.files;
+
+    handleFiles(files);
+  }
+
+  let dropbox = document.getElementById("dropbox");
+  dropbox.addEventListener("dragenter", dragenter, false);
+  dropbox.addEventListener("dragover", dragover, false);
+  dropbox.addEventListener("drop", drop, false);
+</script>
+</body>
+</html>
