@@ -39,3 +39,7 @@ _Note: This app relies on the WGNHS elements NodeJS package published at https:/
 7. Add any additional comments in the Description box click Create pull request
 8. Click Merge pull request, then click Confirm merge
 9. After the pull request is successfully merged, the [built-in Github pages build deployment action](https://github.com/wgnhs/pdf-image-gen/actions/workflows/pages/pages-build-deployment) will be triggered. This action builds the code and publishes it https://wgnhs.github.io/pdf-image-gen. Progress of this action also appears https://github.com/wgnhs/pdf-image-gen/actions . 
+
+# Historical note
+
+This app was previoulsy run on dev.wgnhs.wisc.edu , on port 8081, from an off-the-shelf Docker NGINX Alpine image. While there's record that the app once ran there and was stopped in March 2025, there's no record of the code that was running or its Docker config. 
