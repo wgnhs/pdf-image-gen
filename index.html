@@ -148,7 +148,7 @@
         return renderTask.promise;
       }).then(function () {
         // console.log('Page rendered');
-        let durl = canvasEl.toDataURL();
+        let durl = canvasEl.toDataURL('image/jpeg');
         return durl;
       });
     }
@@ -172,7 +172,7 @@
         .then((durl) => {
           const link = document.getElementById('link');
           link.setAttribute('href', durl)
-          link.setAttribute('download', name + '.jpg');
+          link.setAttribute('download', name + '.png');
           spinner.setAttribute('data-closed', true);
           panel.removeAttribute('data-closed');
         })
