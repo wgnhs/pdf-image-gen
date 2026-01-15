@@ -4,13 +4,15 @@ Simple web app for generating a thumbnail image from a PDF document. Used to gen
 Live app: https://wgnhs.github.io/pdf-image-gen/
 
 # Development
-This project requires [NodeJS 8+](https://nodejs.org/) installed on your development system. We recommend using the latest LTS version.
 
 ## Pre-requisites
 
 - Git and Git Bash (if using Windows)
 
-## 
+_Note: This app relies on the WGNHS elements NodeJS package published at https://www.npmjs.com/package/@wgnhs/elements . The code for this package is located at https://github.com/wgnhs/wgnhs-elements . No installation via Node is needed - the package is accessed from https://cdn.jsdelivr.net/npm/@wgnhs/elements ._ 
+
+## Publish changes
+
 1. Clone this repository to your computer
 
         git clone https://github.com/wgnhs/pdf-image-gen.git
